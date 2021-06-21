@@ -20,11 +20,11 @@ resources:
   # a sane defaults ones. If you have more questions or concerns, please refer
   # to #falco slack channel for more info about it
   requests:
-    cpu: 100m
-    memory: 112Mi
+    cpu: 50m
+    memory: 312Mi
   limits:
-    cpu: 200m
-    memory: 324Mi
+    cpu: 100m
+    memory: 424Mi
 
 extraArgs: []
 nodeSelector: {}
@@ -339,9 +339,9 @@ extraVolumeMounts: []
 # - mountPath: /etc/falco/rules.optional.d
 #   name: optional-rules-volume
 
-# falcosidekick:
+falcosidekick:
 #   # enable falcosidekick deployment
-#   enabled: true
+  enabled: false
 #   webui:
 #     enabled: true
   # for configuration values, see https://github.com/falcosecurity/charts/blob/master/falcosidekick/values.yaml
