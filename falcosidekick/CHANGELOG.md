@@ -5,11 +5,71 @@ numbering uses [semantic versioning](http://semver.org).
 
 Before release 0.1.20, the helm chart can be found in `falcosidekick` [repository](https://github.com/falcosecurity/falcosidekick/tree/master/deploy/helm/falcosidekick).
 
+## 0.3.7
+
+### Minor changes
+
+* Fix table formatting in `README.md`
+* Fix `config.azure.eventHub` parameter name in `README.md`
+
+## 0.3.6
+
+### Fixes
+
+* Point to the correct name of aadpodidentnity
+
+## 0.3.5
+
+### Minor Changes
+
+* Fix link to Falco in the `README.md`
+
+## 0.3.4
+
+### Major Changes
+
+* Bump up version (`v1.0.1`) of image for `falcosidekick-ui`
+
+## 0.3.3
+
+### Minor Changes
+
+* Set default values for `OpenFaaS` output type parameters
+* Fixes of documentation
+
+## 0.3.2
+
+### Fixes
+
+* Add config checksum annotation to deployment pods to restart pods on config change
+* Fix statsd config options in the secret to make them match the docs
+
+## 0.3.1
+
+### Fixes
+
+* Fix for `s3.bucket`, it should be empty
+
+## 0.3.0
+
+### Major Changes
+
+* Add `AWS S3` output
+* Add `GCP Storage` output
+* Add `RabbitMQ` output
+* Add `OpenFaas` output
+
+## 0.2.9
+
+### Major Changes
+
+* Updated falcosidekuck-ui default image version to `v0.2.0`
+
 ## 0.2.8
 
 ### Fixes
 
-* FIxed to specify `kafka.hostPort` instead of `kafka.url`
+* Fixed to specify `kafka.hostPort` instead of `kafka.url`
 
 ## 0.2.7
 

@@ -159,6 +159,7 @@ data:
       enabled: {{ .Values.falco.webserver.enabled }}
       listen_port: {{ .Values.falco.webserver.listenPort }}
       k8s_audit_endpoint: {{ .Values.falco.webserver.k8sAuditEndpoint }}
+      k8s_healthz_endpoint: {{ .Values.falco.webserver.k8sHealthzEndpoint }}
       ssl_enabled: {{ .Values.falco.webserver.sslEnabled }}
       ssl_certificate: {{ .Values.falco.webserver.sslCertificate }}
 
@@ -185,7 +186,7 @@ data:
 
     http_output:
       enabled: {{ if .Values.falcosidekick.enabled }}true{{ else }}{{ .Values.falco.httpOutput.enabled }}{{ end }}
-      url: {{ if .Values.falcosidekick.enabled }}http://{{ template "falco.fullname" . }}-falcosidekick:{{ .Values.falcosidekick.listenport | default "2801" }}{{ else }}{{ .Values.falco.httpOutput.url }}{{ end }}
+      url: {{ if .Values.falcosidekick.enabled }}http://{{ template "falco.fullname" . }}-falcosidekick{{ if .Values.falcosidekick.fullfqdn }}.{{ .Release.Namespace }}.svc.cluster.local{{ end }}:{{ .Values.falcosidekick.listenport | default "2801" }}{{ else }}{{ .Values.falco.httpOutput.url }}{{ end }}
 
     grpc:
       enabled: {{ .Values.falco.grpc.enabled }}

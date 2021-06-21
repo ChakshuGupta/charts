@@ -3,6 +3,67 @@
 This file documents all notable changes to Falco Helm Chart. The release
 numbering uses [semantic versioning](http://semver.org).
 
+## v1.13.2
+
+* Fixed incorrect spelling of `fullfqdn`
+
+## v1.13.1
+
+* Fix port for readinessProbe and livenessProbe
+
+## v1.13.0
+
+* Add liveness and readiness probes to Falco
+
+## v1.12.0
+
+* Add `kubernetesSupport` configuration to make Kubernetes Falco support optional in the daemonset (enabled by default)
+
+## v1.11.1
+
+* Upgrade to Falco 0.28.1 (see the [Falco changelog](https://github.com/falcosecurity/falco/blob/0.28.1/CHANGELOG.md))
+
+## v1.11.0
+
+* Bump up version of chart for `Falcosidekick` dependency to `v3.5.0`
+
+## v1.10.0
+
+* Add `falcosidekick.fullfqdn` option to connect `falco` to `falcosidekick` with full FQDN
+* Bump up version of chart for `Falcosidekick` dependency
+
+## v1.9.0
+
+* Upgrade to Falco 0.28.0 (see the [Falco changelog](https://github.com/falcosecurity/falco/blob/0.28.0/CHANGELOG.md))
+* Update rulesets from Falco 0.28.0
+
+## v1.8.1
+
+* Bump up version of chart for `Falcosidekick` dependency
+
+## v1.8.0
+
+* Bump up version of chart for `Falcosidekick` dependency
+
+## v1.7.10
+
+* Update rule `Write below monitored dir` description
+
+## v1.7.9
+
+* Add a documentation section about the driver
+
+## v1.7.8
+
+* Increase CPU limit default value
+
+## v1.7.7
+
+* Add a documentation section about using init containers
+
+## v1.7.6
+
+* Correct icon URL
 ## v1.7.5
 
 * Update downstream sidekick chart
