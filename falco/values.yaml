@@ -8,7 +8,7 @@ image:
   pullSecrets: []
 
 docker:
-  enabled: true
+  enabled: false
   socket: /var/run/docker.sock
 
 containerd:
@@ -21,10 +21,10 @@ resources:
   # to #falco slack channel for more info about it
   requests:
     cpu: 100m
-    memory: 512Mi
+    memory: 112Mi
   limits:
     cpu: 200m
-    memory: 1024Mi
+    memory: 324Mi
 
 extraArgs: []
 nodeSelector: {}
@@ -112,10 +112,10 @@ falco:
   # If true, the times displayed in log messages and output messages
   # will be in ISO 8601. By default, times are displayed in the local
   # time zone, as governed by /etc/localtime.
-  timeFormatISO8601: false
+  timeFormatISO8601: true
 
   # Whether to output events in json or text
-  jsonOutput: false
+  jsonOutput: true
 
   # When using json output, whether or not to include the "output" property
   # itself (e.g. "File below a known binary directory opened for writing
@@ -131,7 +131,7 @@ falco:
   # separate from the priority field of rules. This refers only to the
   # log level of Falco's internal logging. Can be one of "emergency",
   # "alert", "critical", "error", "warning", "notice", "info", "debug".
-  logLevel: info
+  logLevel: debug
 
   # Minimum rule priority level to load and run. All rules having a
   # priority more severe than this level will be loaded/run.  Can be one
@@ -220,7 +220,7 @@ falco:
   webserver:
     enabled: true
     listenPort: 8765
-    nodePort: false
+    nodePort: true
     k8sAuditEndpoint: /k8s-audit
     sslEnabled: false
     sslCertificate: /etc/falco/certs/server.pem
@@ -339,7 +339,9 @@ extraVolumeMounts: []
 # - mountPath: /etc/falco/rules.optional.d
 #   name: optional-rules-volume
 
-falcosidekick:
-  # enable falcosidekick deployment
-  enabled: false
+# falcosidekick:
+#   # enable falcosidekick deployment
+#   enabled: true
+#   webui:
+#     enabled: true
   # for configuration values, see https://github.com/falcosecurity/charts/blob/master/falcosidekick/values.yaml
