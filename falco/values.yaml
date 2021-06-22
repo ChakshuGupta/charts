@@ -98,7 +98,7 @@ priorityClassName:
 
 ebpf:
   # Enable eBPF support for Falco
-  enabled: false
+  enabled: true
   path:
 
   settings:
