@@ -38,11 +38,11 @@ resources:
   # a sane defaults ones. If you have more questions or concerns, please refer
   # to #falco slack channel for more info about it
   requests:
-    cpu: 50m
-    memory: 312Mi
-  limits:
     cpu: 100m
-    memory: 724Mi
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
 
 extraArgs: []
 nodeSelector: {}
@@ -98,7 +98,7 @@ priorityClassName:
 
 ebpf:
   # Enable eBPF support for Falco
-  enabled: true
+  enabled: false
   path:
 
   settings:
