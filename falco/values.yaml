@@ -42,7 +42,7 @@ resources:
     memory: 312Mi
   limits:
     cpu: 100m
-    memory: 424Mi
+    memory: 724Mi
 
 extraArgs: []
 nodeSelector: {}
@@ -98,7 +98,7 @@ priorityClassName:
 
 ebpf:
   # Enable eBPF support for Falco
-  enabled: false
+  enabled: true
   path:
 
   settings:
@@ -108,7 +108,7 @@ ebpf:
 
 auditLog:
   # true here activates the K8s Audit Log feature for Falco
-  enabled: false
+  enabled: true
 
   dynamicBackend:
     # true here configures an AuditSink who will receive the K8s audit logs
