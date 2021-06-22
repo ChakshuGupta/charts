@@ -108,7 +108,7 @@ ebpf:
 
 auditLog:
   # true here activates the K8s Audit Log feature for Falco
-  enabled: true
+  enabled: false
 
   dynamicBackend:
     # true here configures an AuditSink who will receive the K8s audit logs
