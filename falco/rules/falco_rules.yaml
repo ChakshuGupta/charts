@@ -358,7 +358,7 @@
   desc: Detect any new ssh connection to a host other than those in an allowed group of hosts
   condition: (inbound_outbound) and ssh_port and not allowed_ssh_hosts
   output: Disallowed SSH Connection (command=%proc.cmdline connection=%fd.name user=%user.name user_loginuid=%user.loginuid container_id=%container.id image=%container.image.repository)
-  priority: NOTICE
+  priority: WARNING
   tags: [network, mitre_remote_service]
 
 # These rules and supporting macros are more of an example for how to
