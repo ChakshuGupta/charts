@@ -34,7 +34,7 @@
     ((evt.type in (accept,listen) and evt.dir=<) or
       (evt.type in (recvfrom,recvmsg))) and ssh_port
   output: >
-    Inbound SSH connection (user=%user.name client_ip=%fd.cip client_port=%fd.cport server_ip=%fd.sip)
+    Inbound SSH connection (user=%user.name  user_loginuid=%user.loginuid server_ip=%fd.sip server_port=%fd.sport client_ip=%fd.cip command=%proc.cmdline file=%fd.name container_id=%container.id image=%container.image.repository)
   priority: WARNING
   tags: [network]
 - rule: Outbound SSH Connection
@@ -43,7 +43,7 @@
     ((evt.type = connect and evt.dir=<) or
       (evt.type in (sendto,sendmsg))) and ssh_port
   output: >
-    Outbound SSH connection (user=%user.name server_ip=%fd.sip server_port=%fd.sport client_ip=%fd.cip)
+    Outbound SSH connection (user=%user.name  user_loginuid=%user.loginuid server_ip=%fd.sip server_port=%fd.sport client_ip=%fd.cip command=%proc.cmdline file=%fd.name container_name=%container.name container_id=%container.id image=%container.image.repository)
   priority: WARNING
   tags: [network]
 
@@ -60,7 +60,7 @@
   condition: >
     open_write and (fd.name=/proc/self/exe or fd.name startswith /proc/self/fd/) and not docker_procs and container
   output: >
-    %fd.name is open to write by process (%proc.name, %proc.exeline)
+    %fd.name is open to write by process (%proc.name, %proc.exeline container=%container.info container_id=%container.id container_name=%container.name image=%container.image.repository:%container.image.tag)
   priority: ERROR
 
 
@@ -72,7 +72,7 @@
     spawned_process and
     proc.name="sudo" and
     (proc.cmdline contains "-u#-1" or proc.cmdline contains "-u#4294967295")
-  output: "Detect sudo exploit (CVE-2019-14287) (user=%user.name command=%proc.cmdline container=%container.info)"
+  output: "Detect sudo exploit (CVE-2019-14287) (user=%user.name command=%proc.cmdline container=%container.info container_id=%container.id container_name=%container.name image=%container.image.repository:%container.image.tag)"
   priority: CRITICAL
 
 
@@ -83,7 +83,7 @@
   condition:
     spawned_process and proc.name in (sudo, su)
   output: >
-    Detected sudo or su privilege escalation activity (user=%user.name command=%proc.cmdline)
+    Detected sudo or su privilege escalation activity (user=%user.name command=%proc.cmdline container_id=%container.id container_name=%container.name)
   priority: WARNING
   tags: [process]
 - rule: Package Management Launched
@@ -120,7 +120,7 @@
 - rule: Unexpected inbound tcp connection kube_apiserver
   desc: Detect inbound traffic to kube_apiserver using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (kube_apiserver_allowed_inbound_ports_tcp) and app_kube_apiserver
-  output: Inbound network connection to kube_apiserver on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to kube_apiserver on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -131,7 +131,7 @@
 - rule: Unexpected spawned process kube_apiserver
   desc: Detect a process started in a kube_apiserver container outside of an expected set
   condition: spawned_process and not proc.name in (kube_apiserver_allowed_processes) and app_kube_apiserver
-  output: Unexpected process spawned in kube_apiserver container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in kube_apiserver container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -178,7 +178,7 @@
 - rule: Unexpected inbound tcp connection kube_controller
   desc: Detect inbound traffic to kube_controller using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (kube_controller_allowed_inbound_ports_tcp) and app_kube_controller
-  output: Inbound network connection to kube_controller on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to kube_controller on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -189,7 +189,7 @@
 - rule: Unexpected spawned process kube_controller
   desc: Detect a process started in a kube_controller container outside of an expected set
   condition: spawned_process and not proc.name in (kube_controller_allowed_processes) and app_kube_controller
-  output: Unexpected process spawned in kube_controller container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in kube_controller container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -279,7 +279,7 @@
 - rule: Unexpected inbound tcp connection kube_dns
   desc: Detect inbound traffic to kube_dns using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (kube_dns_allowed_inbound_ports_tcp) and app_kube_dns
-  output: Inbound network connection to kube_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to kube_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -290,7 +290,7 @@
 - rule: Unexpected spawned process kube_dns
   desc: Detect a process started in a kube_dns container outside of an expected set
   condition: spawned_process and not proc.name in (kube_dns_allowed_processes) and app_kube_dns
-  output: Unexpected process spawned in kube_dns container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in kube_dns container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 #
@@ -334,7 +334,7 @@
 - rule: Unexpected spawned process kube_scheduler
   desc: Detect a process started in a kube_scheduler container outside of an expected set
   condition: spawned_process and not proc.name in (kube_scheduler_allowed_processes) and app_kube_scheduler
-  output: Unexpected process spawned in kube_scheduler container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in kube_scheduler container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -347,7 +347,7 @@
 - rule: Unexpected syscall kube_scheduler
   desc: Detect a syscall in a kube_scheduler container outside of an expected set
   condition: kube_scheduler_consider_syscalls and not evt.type in ("<unknown>", kube_scheduler_allowed_syscalls) and app_kube_scheduler
-  output: Unexpected syscall in kube_scheduler container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image)
+  output: Unexpected syscall in kube_scheduler container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
   warn_evttypes: False
 
@@ -371,7 +371,7 @@
 - rule: Unexpected inbound tcp connection defaultbackend
   desc: Detect inbound traffic to defaultbackend using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (defaultbackend_allowed_inbound_ports_tcp) and app_defaultbackend
-  output: Inbound network connection to defaultbackend on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to defaultbackend on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name )
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -382,7 +382,7 @@
 - rule: Unexpected spawned process defaultbackend
   desc: Detect a process started in a defaultbackend container outside of an expected set
   condition: spawned_process and not proc.name in (defaultbackend_allowed_processes) and app_defaultbackend
-  output: Unexpected process spawned in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_id=%container.id container_name=%container.name)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -395,7 +395,7 @@
 - rule: Unexpected syscall defaultbackend
   desc: Detect a syscall in a defaultbackend container outside of an expected set
   condition: defaultbackend_consider_syscalls and not evt.type in ("<unknown>", defaultbackend_allowed_syscalls) and app_defaultbackend
-  output: Unexpected syscall in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image)
+  output: Unexpected syscall in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image container_id=%container.id container_name=%container.name)
   priority: WARNING
   warn_evttypes: False
 
@@ -429,7 +429,7 @@
 - rule: Unexpected inbound tcp connection event_exporter
   desc: Detect inbound traffic to event_exporter using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (event_exporter_allowed_inbound_ports_tcp) and app_event_exporter
-  output: Inbound network connection to event_exporter on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to event_exporter on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -440,7 +440,7 @@
 - rule: Unexpected spawned process event_exporter
   desc: Detect a process started in a event_exporter container outside of an expected set
   condition: spawned_process and not proc.name in (event_exporter_allowed_processes) and app_event_exporter
-  output: Unexpected process spawned in event_exporter container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in event_exporter container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -451,7 +451,7 @@
 - rule: Unexpected file access readonly for event_exporter
   desc: Detect an attempt to access a file readonly other than below an expected list of directories
   condition: (open_read and evt.is_open_write=false) and not fd.name pmatch (event_exporter_allowed_file_prefixes_readonly) and app_event_exporter
-  output: Unexpected file accessed readonly for event_exporter (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readonly for event_exporter (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 #
@@ -495,7 +495,7 @@
 - rule: Unexpected spawned process hyperkube
   desc: Detect a process started in a hyperkube container outside of an expected set
   condition: spawned_process and not proc.name in (hyperkube_allowed_processes) and app_hyperkube
-  output: Unexpected process spawned in hyperkube container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in hyperkube container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -506,7 +506,7 @@
 - rule: Unexpected file access readonly for hyperkube
   desc: Detect an attempt to access a file readonly other than below an expected list of directories
   condition: (open_read and evt.is_open_write=false) and not fd.name pmatch (hyperkube_allowed_file_prefixes_readonly) and app_hyperkube
-  output: Unexpected file accessed readonly for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readonly for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 - list: hyperkube_allowed_file_prefixes_readwrite
@@ -515,7 +515,7 @@
 - rule: Unexpected file access readwrite for hyperkube
   desc: Detect an attempt to access a file readwrite other than below an expected list of directories
   condition: (open_write) and not fd.name pmatch (hyperkube_allowed_file_prefixes_readwrite) and app_hyperkube
-  output: Unexpected file accessed readwrite for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readwrite for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 #
@@ -558,7 +558,7 @@
 - rule: Unexpected inbound tcp connection k8s_dns
   desc: Detect inbound traffic to k8s_dns using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (k8s_dns_allowed_inbound_ports_tcp) and app_k8s_dns
-  output: Inbound network connection to k8s_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to k8s_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 - list: k8s_dns_allowed_inbound_ports_udp
   items: [53]
@@ -566,7 +566,7 @@
 - rule: Unexpected inbound udp connection k8s_dns
   desc: Detect inbound traffic to k8s_dns using udp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (k8s_dns_allowed_inbound_ports_udp) and app_k8s_dns
-  output: Inbound network connection to k8s_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to k8s_dns on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -588,7 +588,7 @@
 - rule: Unexpected file access readonly for k8s_dns
   desc: Detect an attempt to access a file readonly other than below an expected list of directories
   condition: (open_read and evt.is_open_write=false) and not fd.name pmatch (k8s_dns_allowed_file_prefixes_readonly) and app_k8s_dns
-  output: Unexpected file accessed readonly for k8s_dns (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readonly for k8s_dns (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 - list: k8s_dns_allowed_file_prefixes_readwrite
@@ -597,7 +597,7 @@
 - rule: Unexpected file access readwrite for k8s_dns
   desc: Detect an attempt to access a file readwrite other than below an expected list of directories
   condition: (open_write) and not fd.name pmatch (k8s_dns_allowed_file_prefixes_readwrite) and app_k8s_dns
-  output: Unexpected file accessed readwrite for k8s_dns (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readwrite for k8s_dns (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
   
 ### GKE Falco Rules
@@ -621,7 +621,7 @@
 - rule: Unexpected inbound tcp connection defaultbackend
   desc: Detect inbound traffic to defaultbackend using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (defaultbackend_allowed_inbound_ports_tcp) and app_defaultbackend
-  output: Inbound network connection to defaultbackend on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to defaultbackend on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -632,7 +632,7 @@
 - rule: Unexpected spawned process defaultbackend
   desc: Detect a process started in a defaultbackend container outside of an expected set
   condition: spawned_process and not proc.name in (defaultbackend_allowed_processes) and app_defaultbackend
-  output: Unexpected process spawned in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image  container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -645,7 +645,7 @@
 - rule: Unexpected syscall defaultbackend
   desc: Detect a syscall in a defaultbackend container outside of an expected set
   condition: defaultbackend_consider_syscalls and not evt.type in ("<unknown>", defaultbackend_allowed_syscalls) and app_defaultbackend
-  output: Unexpected syscall in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image)
+  output: Unexpected syscall in defaultbackend container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image  container_name=%container.name container_id=%container.id)
   priority: WARNING
   warn_evttypes: False
 
@@ -679,7 +679,7 @@
 - rule: Unexpected inbound tcp connection event_exporter
   desc: Detect inbound traffic to event_exporter using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (event_exporter_allowed_inbound_ports_tcp) and app_event_exporter
-  output: Inbound network connection to event_exporter on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to event_exporter on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image  container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -690,7 +690,7 @@
 - rule: Unexpected spawned process event_exporter
   desc: Detect a process started in a event_exporter container outside of an expected set
   condition: spawned_process and not proc.name in (event_exporter_allowed_processes) and app_event_exporter
-  output: Unexpected process spawned in event_exporter container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in event_exporter container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image  container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -701,7 +701,7 @@
 - rule: Unexpected file access readonly for event_exporter
   desc: Detect an attempt to access a file readonly other than below an expected list of directories
   condition: (open_read and evt.is_open_write=false) and not fd.name pmatch (event_exporter_allowed_file_prefixes_readonly) and app_event_exporter
-  output: Unexpected file accessed readonly for event_exporter (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readonly for event_exporter (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.imagev container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 #
@@ -765,7 +765,7 @@
 - rule: Unexpected file access readwrite for hyperkube
   desc: Detect an attempt to access a file readwrite other than below an expected list of directories
   condition: (open_write) and not fd.name pmatch (hyperkube_allowed_file_prefixes_readwrite) and app_hyperkube
-  output: Unexpected file accessed readwrite for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readwrite for hyperkube (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 #
@@ -790,14 +790,14 @@
 - rule: Unexpected inbound connection k8s_dns
   desc: Detect any inbound connection arriving at k8s_dns
   condition: inbound and evt.rawres >= 0 and app_k8s_dns
-  output: Unexpected inbound connection arriving at k8s_dns (command=%proc.cmdline pid=%proc.pid connection=%fd.name user=%user.name %container.info image=%container.image)
+  output: Unexpected inbound connection arriving at k8s_dns (command=%proc.cmdline pid=%proc.pid connection=%fd.name user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Considering any outbound networking suspect
 - rule: Unexpected outbound connection k8s_dns
   desc: Detect any outbound connection originating from k8s_dns
   condition: outbound and app_k8s_dns
-  output: Unexpected outbound connection originating at k8s_dns (command=%proc.cmdline pid=%proc.pid connection=%fd.name user=%user.name %container.info image=%container.image)
+  output: Unexpected outbound connection originating at k8s_dns (command=%proc.cmdline pid=%proc.pid connection=%fd.name user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting listening ports to selected set
@@ -879,7 +879,7 @@
 - rule: Unexpected inbound tcp connection etcd
   desc: Detect inbound traffic to etcd using tcp on a port outside of expected set
   condition: inbound and evt.rawres >= 0 and not fd.sport in (etcd_allowed_inbound_ports_tcp) and app_etcd
-  output: Inbound network connection to etcd on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+  output: Inbound network connection to etcd on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting spawned processes to selected set
@@ -890,7 +890,7 @@
 - rule: Unexpected spawned process etcd
   desc: Detect a process started in a etcd container outside of an expected set
   condition: spawned_process and not proc.name in (etcd_allowed_processes) and app_etcd
-  output: Unexpected process spawned in etcd container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
+  output: Unexpected process spawned in etcd container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting files read or written to specific set
@@ -901,7 +901,7 @@
 - rule: Unexpected file access readonly for etcd
   desc: Detect an attempt to access a file readonly other than below an expected list of directories
   condition: (open_read and evt.is_open_write=false) and not fd.name pmatch (etcd_allowed_file_prefixes_readonly) and app_etcd
-  output: Unexpected file accessed readonly for etcd (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readonly for etcd (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 - list: etcd_allowed_file_prefixes_readwrite
@@ -910,7 +910,7 @@
 - rule: Unexpected file access readwrite for etcd
   desc: Detect an attempt to access a file readwrite other than below an expected list of directories
   condition: (open_write) and not fd.name pmatch (etcd_allowed_file_prefixes_readwrite) and app_etcd
-  output: Unexpected file accessed readwrite for etcd (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image)
+  output: Unexpected file accessed readwrite for etcd (command=%proc.cmdline pid=%proc.pid file=%fd.name %container.info image=%container.image container_name=%container.name container_id=%container.id)
   priority: WARNING
 
 # Restricting syscalls to selected set
@@ -921,6 +921,6 @@
 - rule: Unexpected syscall etcd
   desc: Detect a syscall in a etcd container outside of an expected set
   condition: etcd_consider_syscalls and not evt.type in ("<unknown>", etcd_allowed_syscalls) and app_etcd
-  output: Unexpected syscall in etcd container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image)
+  output: Unexpected syscall in etcd container (command=%proc.cmdline pid=%proc.pid user=%user.name syscall=%evt.type args=%evt.args %container.info image=%container.image container_name=%container.name container_id=%container.id )
   priority: WARNING
   warn_evttypes: False
